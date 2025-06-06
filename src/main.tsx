@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
 import './index.css';
 import { WagmiProvider } from 'wagmi';
-import { config } from './wagmi.ts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { config } from './wagmi';
+import App from './App';
 
 const queryClient = new QueryClient();
 
