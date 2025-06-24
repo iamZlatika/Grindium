@@ -11,7 +11,7 @@ export const useCompleteMission = (tokenId?: number) => {
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
       functionName: 'completeMission',
-      args: [tokenId],
+      args: [BigInt(tokenId)],
     });
   };
 

@@ -11,7 +11,7 @@ const handleCheckIsOnMission = async (tokenId: number): Promise<Result> => {
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
       functionName: 'isOnMission',
-      args: [tokenId],
+      args: [BigInt(tokenId)],
     });
 
     if (typeof result !== 'boolean') {

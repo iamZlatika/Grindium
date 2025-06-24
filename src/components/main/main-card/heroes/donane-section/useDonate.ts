@@ -9,12 +9,11 @@ export async function donate(tokenId: number, donateXP: string) {
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
       functionName: 'donateXP',
-      args: [tokenId],
+      args: [BigInt(tokenId)],
       value: parseEther(donateXP),
     });
     return { success: true, message: 'You successfully get XP' };
   } catch (error) {
-    console.log(error);
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     return { success: false, message };
   }

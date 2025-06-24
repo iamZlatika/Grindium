@@ -14,18 +14,10 @@ export type TCheckIsOnMissionResult =
   | { success: true; result: boolean }
   | { success: false; message: string };
 
-export type TMissionsIds = [bigint, bigint, bigint, bigint];
-export type TMissionsNames = [string, string, string, string];
-export type TMissionsLevels = [bigint, bigint, bigint, bigint];
-export type TMissionsDurations = [bigint, bigint, bigint, bigint];
-export type TMissionsMinXPRewards = [bigint, bigint, bigint, bigint];
-export type TMissionsMaxXPRewards = [bigint, bigint, bigint, bigint];
-
-export type TMissions = [
-  TMissionsIds,
-  TMissionsNames,
-  TMissionsLevels,
-  TMissionsDurations,
-  TMissionsMinXPRewards,
-  TMissionsMaxXPRewards,
-];
+export type TMission = {
+  name: string;
+  minLevel: bigint;
+  durationMinutes: bigint;
+  minXPReward: bigint;
+  maxXPReward: bigint;
+};

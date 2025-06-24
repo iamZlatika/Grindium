@@ -6,6 +6,6 @@ export const config = createConfig({
   connectors: [injected()],
   chains: [sepolia],
   transports: {
-    [sepolia.id]: http(), // можно указать свой Infura/Alchemy URL
+    [sepolia.id]: http(),
   },
 })

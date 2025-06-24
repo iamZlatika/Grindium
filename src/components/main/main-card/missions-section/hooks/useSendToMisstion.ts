@@ -10,16 +10,14 @@ export const useSendToMission = (onSuccessCallback: () => void) => {
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'sendToMission',
-        args: [heroId, missionId],
+        args: [BigInt(heroId), BigInt(missionId)],
       });
-
-      // 🟡 Ждём пока транзакция завершится
       await waitForTransactionReceipt(config, { hash: tx });
 
       return tx;
     },
     onSuccess: () => {
-      onSuccessCallback(); // ✅ теперь состояние точно обновлено
+      onSuccessCallback();
     },
   });
 

@@ -3,29 +3,26 @@ import { readContract } from '@wagmi/core';
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/contract';
 import { config } from '@/wagmi';
 
-type TimerState = {
+type CooldownState = {
   secondsLeft: number;
   isRunning: boolean;
   error: string | null;
 };
+type TMintCooldownResult = [cooldown: bigint, lastMint: bigint, remaining: bigint];
 
-const fetchRemainingTime = async (tokenId: number): Promise<number> => {
+const fetchMintCooldown = async (address: `0x${string}`): Promise<TMintCooldownResult> => {
   const result = await readContract(config, {
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
-    functionName: 'getMissionRemainingTime',
-    args: [tokenId],
+    functionName: 'getUserMintCooldown',
+    args: [address],
   });
 
-  if (typeof result !== 'bigint') {
-    throw new Error('Unexpected return type from contract');
-  }
-
-  return Number(result);
+  return result as TMintCooldownResult;
 };
 
-export const useMissionTimer = () => {
-  const [timerState, setTimerState] = useState<TimerState>({
+export const useMintCooldownTimer = (address?: `0x${string}`) => {
+  const [cooldownState, setCooldownState] = useState<CooldownState>({
     secondsLeft: 0,
     isRunning: false,
     error: null,
@@ -33,26 +30,24 @@ export const useMissionTimer = () => {
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const startTimer = useCallback(async (tokenId: number) => {
+  const fetchAndStart = useCallback(async () => {
+    if (!address) return;
     if (intervalRef.current) clearInterval(intervalRef.current);
-    setTimerState({ secondsLeft: 0, isRunning: false, error: null });
+    setCooldownState({ secondsLeft: 0, isRunning: false, error: null });
 
     try {
-      const seconds = await fetchRemainingTime(tokenId);
+      const [, , remaining] = await fetchMintCooldown(address);
 
-      if (seconds <= 0) {
-        setTimerState({ secondsLeft: 0, isRunning: false, error: null });
-        return;
-      }
+      if (remaining <= 0n) return;
 
-      setTimerState({
-        secondsLeft: seconds,
+      setCooldownState({
+        secondsLeft: Number(remaining),
         isRunning: true,
         error: null,
       });
 
       intervalRef.current = setInterval(() => {
-        setTimerState((prev) => {
+        setCooldownState((prev) => {
           if (prev.secondsLeft <= 1) {
             clearInterval(intervalRef.current!);
             return { ...prev, secondsLeft: 0, isRunning: false };
@@ -62,20 +57,21 @@ export const useMissionTimer = () => {
       }, 1000);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      setTimerState({ secondsLeft: 0, isRunning: false, error: message });
+      setCooldownState({ secondsLeft: 0, isRunning: false, error: message });
     }
-  }, []);
+  }, [address]);
 
   useEffect(() => {
+    fetchAndStart();
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
+  }, [fetchAndStart]);
 
   return {
-    secondsLeft: timerState.secondsLeft,
-    isRunning: timerState.isRunning,
-    error: timerState.error,
-    startTimer,
+    secondsLeft: cooldownState.secondsLeft,
+    isRunning: cooldownState.isRunning,
+    error: cooldownState.error,
+    refreshCooldown: fetchAndStart,
   };
 };

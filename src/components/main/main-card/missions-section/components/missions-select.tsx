@@ -6,14 +6,14 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '../../../ui/select';
+} from '@/components/ui/select';
 
 interface SelectMissionSectionProps {
   missionsNames: string[];
   setMissionName: (value: string) => void;
   missionName: string | undefined;
 }
-const SelectMissionSection = ({
+const MissionSelect = ({
   setMissionName: setMissionId,
   missionName: missionId,
   missionsNames,
@@ -39,4 +39,4 @@ const SelectMissionSection = ({
   );
 };
 
-export default SelectMissionSection;
+export default MissionSelect;

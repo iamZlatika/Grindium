@@ -1,10 +1,11 @@
-export const CONTRACT_ADDRESS = '0x5F71881Ca46b1731483e1939c0E3a25D54886C2D';
+export const CONTRACT_ADDRESS = '0x595d9a8e8aB160C8E640888a56AD776630D11b48';
 
 export const CONTRACT_ABI = [
   {
     inputs: [
       { internalType: 'address', name: '_heroNFT', type: 'address' },
       { internalType: 'address', name: '_xpToken', type: 'address' },
+      { internalType: 'address', name: '_missionManager', type: 'address' },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -22,20 +23,58 @@ export const CONTRACT_ABI = [
   {
     anonymous: false,
     inputs: [
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+    ],
+    name: 'AllStoryMissionsCompleted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [{ indexed: false, internalType: 'string', name: 'newBaseURI', type: 'string' }],
+    name: 'BaseURIChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [{ indexed: true, internalType: 'address', name: 'newGameManager', type: 'address' }],
+    name: 'GameManagerChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      { indexed: false, internalType: 'uint8', name: 'newRarity', type: 'uint8' },
+      { indexed: false, internalType: 'uint256', name: 'level', type: 'uint256' },
+    ],
+    name: 'HeroEvolved',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
       { indexed: true, internalType: 'address', name: 'owner', type: 'address' },
       { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      { indexed: false, internalType: 'uint8', name: 'rarity', type: 'uint8' },
     ],
     name: 'HeroMinted',
     type: 'event',
   },
   {
     anonymous: false,
+    inputs: [{ indexed: false, internalType: 'uint256', name: 'newCooldown', type: 'uint256' }],
+    name: 'MintCooldownChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'uint256', name: 'oldTokenId', type: 'uint256' },
-      { indexed: false, internalType: 'uint256', name: 'newTokenId', type: 'uint256' },
-      { indexed: false, internalType: 'uint8', name: 'newRarity', type: 'uint8' },
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'missionId', type: 'uint256' },
     ],
-    name: 'HeroUpgraded',
+    name: 'MissionCancelled',
     type: 'event',
   },
   {
@@ -72,10 +111,59 @@ export const CONTRACT_ABI = [
   {
     anonymous: false,
     inputs: [
+      { indexed: true, internalType: 'uint256', name: 'missionId', type: 'uint256' },
+      { indexed: false, internalType: 'string', name: 'name', type: 'string' },
+    ],
+    name: 'MissionUpdated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
       { indexed: true, internalType: 'address', name: 'previousOwner', type: 'address' },
       { indexed: true, internalType: 'address', name: 'newOwner', type: 'address' },
     ],
     name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'missionId', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'xpGained', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'newLevel', type: 'uint256' },
+    ],
+    name: 'StoryMissionCompleted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'uint256', name: 'missionId', type: 'uint256' },
+      { indexed: false, internalType: 'string', name: 'name', type: 'string' },
+    ],
+    name: 'StoryMissionCreated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'missionId', type: 'uint256' },
+    ],
+    name: 'StoryMissionStarted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'uint256', name: 'missionId', type: 'uint256' },
+      { indexed: false, internalType: 'string', name: 'name', type: 'string' },
+    ],
+    name: 'StoryMissionUpdated',
     type: 'event',
   },
   {
@@ -98,14 +186,28 @@ export const CONTRACT_ABI = [
   },
   {
     inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    name: 'availableMissionIds',
+    name: 'activeStoryMissionId',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'cancelMission',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
     name: 'completeMission',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'completeStoryMission',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -121,12 +223,86 @@ export const CONTRACT_ABI = [
     inputs: [],
     name: 'getAllMissions',
     outputs: [
-      { internalType: 'uint256[]', name: 'ids', type: 'uint256[]' },
-      { internalType: 'string[]', name: 'names', type: 'string[]' },
-      { internalType: 'uint256[]', name: 'minLevels', type: 'uint256[]' },
-      { internalType: 'uint256[]', name: 'durations', type: 'uint256[]' },
-      { internalType: 'uint256[]', name: 'minXPRewards', type: 'uint256[]' },
-      { internalType: 'uint256[]', name: 'maxXPRewards', type: 'uint256[]' },
+      {
+        components: [
+          { internalType: 'string', name: 'name', type: 'string' },
+          { internalType: 'string', name: 'description', type: 'string' },
+          { internalType: 'uint256', name: 'minLevel', type: 'uint256' },
+          { internalType: 'uint256', name: 'durationMinutes', type: 'uint256' },
+          { internalType: 'uint256', name: 'minXPReward', type: 'uint256' },
+          { internalType: 'uint256', name: 'maxXPReward', type: 'uint256' },
+        ],
+        internalType: 'struct IMissionManager.Mission[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getAllStoryMissions',
+    outputs: [
+      {
+        components: [
+          { internalType: 'string', name: 'name', type: 'string' },
+          { internalType: 'string', name: 'description', type: 'string' },
+          { internalType: 'uint256', name: 'minLevel', type: 'uint256' },
+          { internalType: 'uint256', name: 'durationMinutes', type: 'uint256' },
+          { internalType: 'uint256', name: 'xpReward', type: 'uint256' },
+        ],
+        internalType: 'struct IMissionManager.StoryMission[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'getHeroData',
+    outputs: [
+      {
+        components: [
+          { internalType: 'uint8', name: 'rarity', type: 'uint8' },
+          { internalType: 'uint256', name: 'level', type: 'uint256' },
+          { internalType: 'uint256', name: 'xp', type: 'uint256' },
+        ],
+        internalType: 'struct IHeroNFT.Hero',
+        name: 'hero',
+        type: 'tuple',
+      },
+      { internalType: 'address', name: 'owner', type: 'address' },
+      { internalType: 'string', name: 'uri', type: 'string' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'getHeroFullData',
+    outputs: [
+      {
+        components: [
+          {
+            components: [
+              { internalType: 'uint8', name: 'rarity', type: 'uint8' },
+              { internalType: 'uint256', name: 'level', type: 'uint256' },
+              { internalType: 'uint256', name: 'xp', type: 'uint256' },
+            ],
+            internalType: 'struct IHeroNFT.Hero',
+            name: 'hero',
+            type: 'tuple',
+          },
+          { internalType: 'address', name: 'owner', type: 'address' },
+          { internalType: 'string', name: 'tokenUri', type: 'string' },
+        ],
+        internalType: 'struct IHeroNFT.HeroFullData',
+        name: '',
+        type: 'tuple',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -181,9 +357,51 @@ export const CONTRACT_ABI = [
     type: 'function',
   },
   {
+    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
+    name: 'getNextStoryMission',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
     name: 'getOwnedHeroes',
     outputs: [{ internalType: 'uint256[]', name: '', type: 'uint256[]' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
+    name: 'getUserMintCooldown',
+    outputs: [
+      { internalType: 'uint256', name: 'cooldown', type: 'uint256' },
+      { internalType: 'uint256', name: 'lastMint', type: 'uint256' },
+      { internalType: 'uint256', name: 'remaining', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getXPPriceWei',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: '', type: 'address' }],
+    name: 'hasCompletedAllStoryMissions',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'user', type: 'address' },
+      { internalType: 'uint256', name: 'missionId', type: 'uint256' },
+    ],
+    name: 'hasCompletedStoryMission',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
   },
@@ -197,6 +415,13 @@ export const CONTRACT_ABI = [
   {
     inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     name: 'isOnMission',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'isOnStoryMission',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
@@ -217,22 +442,16 @@ export const CONTRACT_ABI = [
   },
   { inputs: [], name: 'mintHero', outputs: [], stateMutability: 'nonpayable', type: 'function' },
   {
-    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    name: 'missionStart',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    inputs: [],
+    name: 'missionManager',
+    outputs: [{ internalType: 'contract IMissionManager', name: '', type: 'address' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    name: 'missions',
-    outputs: [
-      { internalType: 'string', name: 'name', type: 'string' },
-      { internalType: 'uint256', name: 'minLevel', type: 'uint256' },
-      { internalType: 'uint256', name: 'durationMinutes', type: 'uint256' },
-      { internalType: 'uint256', name: 'minXPReward', type: 'uint256' },
-      { internalType: 'uint256', name: 'maxXPReward', type: 'uint256' },
-    ],
+    name: 'missionStart',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
@@ -261,43 +480,32 @@ export const CONTRACT_ABI = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'setHeroNFTGameManager',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [
+      { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
       { internalType: 'uint256', name: 'missionId', type: 'uint256' },
-      { internalType: 'string', name: '_name', type: 'string' },
-      { internalType: 'uint256', name: 'minLevel', type: 'uint256' },
-      { internalType: 'uint256', name: 'durationMinutes', type: 'uint256' },
-      { internalType: 'uint256', name: 'minXPReward', type: 'uint256' },
-      { internalType: 'uint256', name: 'maxXPReward', type: 'uint256' },
     ],
-    name: 'setMission',
+    name: 'sendToStoryMission',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'setXPTokenGameManager',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'storyMissionStart',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: '', type: 'address' }],
+    name: 'storyMissionTokenId',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
     name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
-    name: 'upgradeRarity',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -310,4 +518,4 @@ export const CONTRACT_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-];
+] as const;
