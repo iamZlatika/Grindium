@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';
-import { donate } from './useDonate';
+
 import { Label } from '@/components/ui/label';
 import { convertDonationToExp, convertExpToDonation, isValidNumberInput } from './helpers';
+import { useDonateXP } from './useDonate';
 
 interface DonateFormProps {
   heroId: number | undefined;
@@ -12,7 +13,7 @@ interface DonateFormProps {
 const DonateForm = ({ heroId }: DonateFormProps) => {
   const [donateSum, setDonateSum] = useState('');
   const [experience, setExperience] = useState('');
-
+  const { donate, isLoading } = useDonateXP();
   const handleSubmit = () => {
     if (!heroId || donateSum.length === 0) return;
     donate(heroId, donateSum);
@@ -50,8 +51,12 @@ const DonateForm = ({ heroId }: DonateFormProps) => {
           placeholder="You will get"
         />
       </div>
-      <Button disabled={!heroId || donateSum.length === 0} onClick={handleSubmit} className="ml-2">
-        Donate
+      <Button
+        disabled={!heroId || donateSum.length === 0 || isLoading}
+        onClick={handleSubmit}
+        className="ml-2"
+      >
+        {isLoading ? 'Donating' : 'Donate'}
       </Button>
     </>
   );

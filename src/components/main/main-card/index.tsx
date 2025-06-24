@@ -8,15 +8,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useMintHero } from './useMintHero';
-import HeroSelect from './hero-select';
-import DonateForm from './heroes/donane-section';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 // import { TMission } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import HeroProfile from './heroes/hero-profile';
 import { useMintCooldownTimer } from './useMintCooldown';
 import { formatSeconds } from '@/lib/utils';
+import HeroTab from './heroes';
 
 interface MainCardProps {
   heroes: bigint[];
@@ -69,11 +67,7 @@ const MainCard = ({
         </CardHeader>
         <CardContent className="">
           <TabsContent value="heroes">
-            <div className="flex items-end">
-              <HeroSelect data={heroes} setHeroId={setHeroId} heroId={heroId} />
-              <DonateForm heroId={heroId} />
-            </div>
-            {heroId && <HeroProfile heroId={heroId} />}
+            <HeroTab heroId={heroId} setHeroId={setHeroId} heroes={heroes} />
           </TabsContent>
         </CardContent>
         <CardFooter className="flex justify-between"></CardFooter>

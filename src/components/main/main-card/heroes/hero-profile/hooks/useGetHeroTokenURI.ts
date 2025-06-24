@@ -16,6 +16,7 @@ export function useHeroTokenURI(heroId?: number) {
     data: uri,
     isLoading: isUriLoading,
     error: uriError,
+    refetch,
   } = useReadContract({
     abi: CONTRACT_ABI,
     address: CONTRACT_ADDRESS,
@@ -58,5 +59,5 @@ export function useHeroTokenURI(heroId?: number) {
   const loading = isUriLoading || isIpfsLoading;
   const error = uriError || ipfsError;
 
-  return { processedMetadata, loading, error };
+  return { processedMetadata, loading, error, refetchTokenUri: refetch };
 }

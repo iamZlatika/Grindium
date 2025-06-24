@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useHeroData } from '../../hero-select/hooks/useGetHeroData';
-import { useHeroTokenURI } from '../../hero-select/hooks/useGetHeroTokenURI';
+import { useHeroData } from './hooks/useGetHeroData';
+import { useHeroTokenURI } from './hooks/useGetHeroTokenURI';
 import loaderGif from '../../../../../lib/loader.gif';
-import { useImageOnScreen } from '../../hero-select/hooks/useImageOnScreen';
+import { useImageOnScreen } from './hooks/useImageOnScreen';
 import { Progress } from '@/components/ui/progress';
-import { useLevelThreshold } from './useLevelThreshold';
+import { useLevelThreshold } from './hooks/useLevelThreshold';
 import { useWatchContractEvent } from 'wagmi';
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/contract';
 import { toast } from 'sonner';
@@ -18,7 +18,7 @@ const HeroProfile = ({ heroId }: HeroProfileProps) => {
   const [imageError, setImageError] = useState(false);
 
   const [imageContainerRef, isImageOnScreen] = useImageOnScreen({ threshold: 0.1 });
-  const { processedMetadata, loading, error } = useHeroTokenURI(heroId);
+  const { processedMetadata, loading, error, refetchTokenUri } = useHeroTokenURI(heroId);
   const { heroData, refetchHero } = useHeroData(heroId);
   const heroLevel = heroData?.hero.level;
   const {
@@ -43,6 +43,7 @@ const HeroProfile = ({ heroId }: HeroProfileProps) => {
         if (Number(tokenId) === heroId) {
           toast.success(`XP updated for hero ${heroId}`);
           refetchHero();
+          refetchTokenUri()
         }
       }
     },
