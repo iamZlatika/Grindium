@@ -1,13 +1,12 @@
-export type THero = {
-  name: string;
-  description: string;
-  image: string;
-  attributes: TAttribute[];
+export type THeroData = {
+  rarity: number;
+  level: bigint;
+  xp: bigint;
 };
-
-type TAttribute = {
-  trait_type: string;
-  value: string;
+export type TFullHeroData = {
+  hero: THeroData;
+  owner: `0x${string}`;
+  tokenUri: string;
 };
 
 export type TCheckIsOnMissionResult =
@@ -15,7 +14,9 @@ export type TCheckIsOnMissionResult =
   | { success: false; message: string };
 
 export type TMission = {
+  id: bigint;
   name: string;
+  description: string;
   minLevel: bigint;
   durationMinutes: bigint;
   minXPReward: bigint;

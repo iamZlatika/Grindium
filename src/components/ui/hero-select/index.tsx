@@ -18,7 +18,7 @@ const HeroSelect = ({ heroId, data, setHeroId }: HeroSelectProps) => {
 
   return (
     <Select value={heroId?.toString()} onValueChange={(value) => setHeroId(Number(value))}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger>
         <SelectValue placeholder="Select your hero" />
       </SelectTrigger>
       <SelectContent>

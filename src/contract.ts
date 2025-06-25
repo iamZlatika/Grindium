@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = '0x595d9a8e8aB160C8E640888a56AD776630D11b48';
+export const CONTRACT_ADDRESS = '0xEE78C50ac32AFe943F49B68b0FdEF77Fa9E69734';
 
 export const CONTRACT_ABI = [
   {
@@ -225,6 +225,7 @@ export const CONTRACT_ABI = [
     outputs: [
       {
         components: [
+          { internalType: 'uint256', name: 'id', type: 'uint256' },
           { internalType: 'string', name: 'name', type: 'string' },
           { internalType: 'string', name: 'description', type: 'string' },
           { internalType: 'uint256', name: 'minLevel', type: 'uint256' },
@@ -246,6 +247,7 @@ export const CONTRACT_ABI = [
     outputs: [
       {
         components: [
+          { internalType: 'uint256', name: 'id', type: 'uint256' },
           { internalType: 'string', name: 'name', type: 'string' },
           { internalType: 'string', name: 'description', type: 'string' },
           { internalType: 'uint256', name: 'minLevel', type: 'uint256' },

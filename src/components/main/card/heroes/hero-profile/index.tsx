@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useHeroData } from './hooks/useGetHeroData';
 import { useHeroTokenURI } from './hooks/useGetHeroTokenURI';
 import loaderGif from '../../../../../lib/loader.gif';
 import { useImageOnScreen } from './hooks/useImageOnScreen';
@@ -8,24 +7,27 @@ import { useLevelThreshold } from './hooks/useLevelThreshold';
 import { useWatchContractEvent } from 'wagmi';
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/contract';
 import { toast } from 'sonner';
+import { levelLabels } from './helpers';
+import { TFullHeroData } from '@/types';
 
 interface HeroProfileProps {
   heroId: number;
+  heroData: TFullHeroData;
+  onHeroDataRefetch: () => void;
 }
 
-const HeroProfile = ({ heroId }: HeroProfileProps) => {
+const HeroProfile = ({ heroId, heroData, onHeroDataRefetch }: HeroProfileProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const [imageContainerRef, isImageOnScreen] = useImageOnScreen({ threshold: 0.1 });
   const { processedMetadata, loading, error, refetchTokenUri } = useHeroTokenURI(heroId);
-  const { heroData, refetchHero } = useHeroData(heroId);
-  const heroLevel = heroData?.hero.level;
+
   const {
     currentThreshold,
     nextThreshold,
     isLoading: thresholdLoading,
-  } = useLevelThreshold(heroLevel);
+  } = useLevelThreshold(heroData?.hero.level);
 
   useWatchContractEvent({
     address: CONTRACT_ADDRESS,
@@ -42,8 +44,8 @@ const HeroProfile = ({ heroId }: HeroProfileProps) => {
 
         if (Number(tokenId) === heroId) {
           toast.success(`XP updated for hero ${heroId}`);
-          refetchHero();
-          refetchTokenUri()
+          onHeroDataRefetch();
+          refetchTokenUri();
         }
       }
     },
@@ -79,10 +81,11 @@ const HeroProfile = ({ heroId }: HeroProfileProps) => {
     }
   }, [isImageOnScreen, processedMetadata, imageLoaded, imageError]); //
 
-  console.log('first, heroData?.hero.xp', heroData?.hero.xp);
   const currentXp = Number(heroData?.hero.xp ?? 0) - Number(currentThreshold);
   const nextLevelThreshold = Number(nextThreshold) - Number(currentThreshold);
   const progressPercent = nextLevelThreshold > 0 ? (currentXp / nextLevelThreshold) * 100 : 0;
+  const maxLvlPercent = Number(heroData?.hero.level) === 30 ? 100 : progressPercent;
+
   return (
     <>
       {processedMetadata && (
@@ -117,12 +120,15 @@ const HeroProfile = ({ heroId }: HeroProfileProps) => {
       )}
       <div className="flex flex-col items-center mt-5">
         <div className="relative w-full">
-          <Progress value={progressPercent} className="h-6" />
+          <Progress value={maxLvlPercent} className="h-6" />
           <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-black">
-            {thresholdLoading
-              ? 'Loading...'
-              : Number(heroData?.hero.xp) - Number(currentThreshold) || 0}{' '}
-            /{nextLevelThreshold}
+            {Number(heroData?.hero.level) !== 30 &&
+              (thresholdLoading
+                ? 'Loading...'
+                : `${
+                    Number(heroData?.hero.xp) - Number(currentThreshold) || 0
+                  } / ${nextLevelThreshold}`)}
+            {Number(heroData?.hero.level) === 30 && 'Max level'}
           </div>
         </div>
         <div className="flex mt-2">
@@ -131,7 +137,7 @@ const HeroProfile = ({ heroId }: HeroProfileProps) => {
         </div>
         <div className="flex">
           <p className="mr-2">Rarity:</p>
-          {heroData?.hero.rarity}
+          {levelLabels[Number(heroData?.hero.rarity)]}
         </div>
       </div>
     </>

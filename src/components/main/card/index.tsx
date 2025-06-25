@@ -10,22 +10,25 @@ import {
 import { useMintHero } from './useMintHero';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-// import { TMission } from '@/types';
+import { TFullHeroData, TMission } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMintCooldownTimer } from './useMintCooldown';
 import { formatSeconds } from '@/lib/utils';
 import HeroTab from './heroes';
+import MissionsTab from './missions';
 
 interface MainCardProps {
   heroes: bigint[];
   setHeroId: (value: number) => void;
   heroId: number | undefined;
   onHeroCreated: () => void;
-  // missions: TMission[];
-  setMissionName: (value: string) => void;
-  missionName: string | undefined;
+  missions: TMission[];
+  setSelectedMission: (value: TMission | undefined) => void;
+  selectedMission: TMission | undefined;
   isConnected: boolean;
   address: `0x${string}` | undefined;
+  heroData: TFullHeroData;
+  onHeroDataRefetch: () => void;
 }
 
 const MainCard = ({
@@ -34,7 +37,12 @@ const MainCard = ({
   heroId,
   onHeroCreated,
   address,
+  missions,
   isConnected,
+  selectedMission,
+  setSelectedMission,
+  heroData,
+  onHeroDataRefetch,
 }: MainCardProps) => {
   const { secondsLeft, isRunning, refreshCooldown } = useMintCooldownTimer(address);
 
@@ -49,7 +57,7 @@ const MainCard = ({
 
   return (
     <Card className="w-full max-w-2xl">
-      <Tabs defaultValue="heroes">
+      <Tabs defaultValue="missions">
         <CardHeader>
           <CardTitle>
             <TabsList>
@@ -67,7 +75,25 @@ const MainCard = ({
         </CardHeader>
         <CardContent className="">
           <TabsContent value="heroes">
-            <HeroTab heroId={heroId} setHeroId={setHeroId} heroes={heroes} />
+            <HeroTab
+              heroId={heroId}
+              setHeroId={setHeroId}
+              heroes={heroes}
+              heroData={heroData}
+              onHeroDataRefetch={onHeroDataRefetch}
+            />
+          </TabsContent>
+          <TabsContent value="missions">
+            <MissionsTab
+              heroId={heroId}
+              missions={missions}
+              selectedMission={selectedMission}
+              setSelectedMission={setSelectedMission}
+              setHeroId={setHeroId}
+              heroes={heroes}
+              heroData={heroData}
+              onHeroDataRefetch={onHeroDataRefetch}
+            />
           </TabsContent>
         </CardContent>
         <CardFooter className="flex justify-between"></CardFooter>
