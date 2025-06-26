@@ -79,7 +79,7 @@ const HeroProfile = ({ heroId, heroData, onHeroDataRefetch }: HeroProfileProps) 
         img.onerror = null;
       };
     }
-  }, [isImageOnScreen, processedMetadata, imageLoaded, imageError]); //
+  }, [isImageOnScreen, processedMetadata, imageLoaded, imageError]); 
 
   const currentXp = Number(heroData?.hero.xp ?? 0) - Number(currentThreshold);
   const nextLevelThreshold = Number(nextThreshold) - Number(currentThreshold);

@@ -1,14 +1,17 @@
 import { TFullHeroData, TMission } from '@/types';
 import { Button } from '@/components/ui/button';
 import MissionSelect from './components/missions-select';
-import { MissionTimer } from './components/mission-timer';
 import { useMissionTimer } from './hooks/useMissionTimer';
 import { useSendToMission } from './hooks/useSendToMisstion';
 import HeroSelect from '@/components/ui/hero-select';
 import { useCompleteMission } from './hooks/useCompleteMission';
 import { Label } from '@/components/ui/label';
 import { missionImages } from '@/assets/missions';
-import { cn } from '@/lib/utils';
+import { cn, formatSeconds } from '@/lib/utils';
+import { useWatchContractEvent } from 'wagmi';
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/contract';
+import { toast } from 'sonner';
+import { useCancelMission } from './hooks/useCancelMission';
 
 interface MissionsSectionProps {
   missions: TMission[];
@@ -29,19 +32,51 @@ const MissionsTab = ({
   heroes,
   selectedMission,
   heroData,
-}: // onHeroDataRefetch
-MissionsSectionProps) => {
-  const { startTimer, isRunning, secondsLeft } = useMissionTimer();
+  onHeroDataRefetch,
+}: MissionsSectionProps) => {
+  const { startTimer, isRunning, secondsLeft } = useMissionTimer(heroId);
   const { completeMission, isPendingCompleteMission } = useCompleteMission(heroId);
+  const { cancelMission } = useCancelMission(() => {
+    if (heroId) {
+      startTimer(heroId);
+    }
+  });
   const { sendToMission, isSending } = useSendToMission(() => {
     if (heroId) {
       startTimer(heroId);
     }
   });
+  useWatchContractEvent({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    eventName: 'MissionCompleted',
+    onLogs(logs) {
+      for (const log of logs) {
+        const { tokenId, xpGained } = log.args as {
+          user: string;
+          tokenId: bigint;
+          missionId: bigint;
+          xpGained: bigint;
+          newLevel: bigint;
+        };
+
+        if (Number(tokenId) === heroId) {
+          toast.success(`Hero ${heroId} gained ${xpGained}xp`);
+          onHeroDataRefetch();
+        }
+      }
+    },
+  });
+
 
   const handleSendToMission = () => {
+    const missionId = Number(selectedMission?.id);
+    if (!heroId || !missionId) return;
+    sendToMission({ heroId, missionId });
+  };
+  const handleCancelMission = () => {
     if (!heroId) return;
-    sendToMission({ heroId, missionId: 1 });
+    cancelMission({ heroId });
   };
   return (
     <>
@@ -58,25 +93,46 @@ MissionsSectionProps) => {
         <div>
           <Label className="mb-2 text-red-400">
             {selectedMission &&
-              selectedMission?.minLevel > heroData.hero.level &&
-              'Level is too low'}
+              heroData &&
+              heroData?.hero &&
+              selectedMission?.minLevel > heroData?.hero.level &&
+              `Your level ${heroData?.hero.level}`}
           </Label>
-          <Button
-            onClick={handleSendToMission}
-            disabled={
-              !heroId || (selectedMission && selectedMission?.minLevel > heroData.hero.level)
-            }
-          >
-            {isSending ? 'Sending' : 'Send to mission'}
-          </Button>
+          {!isRunning && (
+            <Button
+              onClick={handleSendToMission}
+              disabled={
+                isRunning ||
+                isPendingCompleteMission ||
+                !heroId ||
+                (selectedMission &&
+                  heroData?.hero &&
+                  selectedMission?.minLevel > heroData?.hero.level)
+              }
+            >
+              {isSending ? 'Sending' : 'Send to mission'}
+            </Button>
+          )}
+          {isRunning && (
+            <Button
+              onClick={handleCancelMission}
+              disabled={
+                !heroId ||
+                (selectedMission &&
+                  heroData?.hero &&
+                  selectedMission?.minLevel > heroData?.hero.level)
+              }
+            >
+              {isRunning ? 'Stop mission' : 'Stopping'}
+            </Button>
+          )}
         </div>
 
-        {!isRunning && (
-          <Button onClick={completeMission} disabled={isPendingCompleteMission}>
-            {isPendingCompleteMission ? 'Getting' : 'Get reward'}
-          </Button>
-        )}
-        {isRunning && <MissionTimer secondsLeft={secondsLeft} />}
+        <Button onClick={completeMission} disabled={isPendingCompleteMission || isRunning}>
+          {!isRunning && isPendingCompleteMission && 'Getting'}
+          {!isRunning && !isPendingCompleteMission && 'Get reward'}
+          {isRunning && <div>On mission: {formatSeconds(secondsLeft)}</div>}
+        </Button>
       </div>
       {selectedMission && (
         <div>
@@ -90,7 +146,8 @@ MissionsSectionProps) => {
               <p
                 className={cn(
                   selectedMission &&
-                    selectedMission?.minLevel > heroData.hero.level &&
+                    heroData?.hero &&
+                    selectedMission?.minLevel > heroData?.hero.level &&
                     'text-red-400',
                 )}
               >

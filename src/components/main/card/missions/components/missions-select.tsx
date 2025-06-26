@@ -28,7 +28,7 @@ const MissionSelect = ({
 
   return (
     <Select value={selectedMission?.name} onValueChange={(value) => handleSelectMission(value)}>
-      <SelectTrigger className="w-[190px]">
+      <SelectTrigger className="w-[170px]">
         <SelectValue placeholder="Select a mission" />
       </SelectTrigger>
       <SelectContent>

@@ -9,12 +9,12 @@ type TimerState = {
   error: string | null;
 };
 
-const fetchRemainingTime = async (tokenId: number): Promise<number> => {
+const fetchRemainingTime = async (heroId: number): Promise<number> => {
   const result = await readContract(config, {
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'getMissionRemainingTime',
-    args: [BigInt(tokenId)],
+    args: [BigInt(heroId)],
   });
 
   if (typeof result !== 'bigint') {
@@ -24,7 +24,7 @@ const fetchRemainingTime = async (tokenId: number): Promise<number> => {
   return Number(result);
 };
 
-export const useMissionTimer = () => {
+export const useMissionTimer = (heroId?: number) => {
   const [timerState, setTimerState] = useState<TimerState>({
     secondsLeft: 0,
     isRunning: false,
@@ -65,12 +65,19 @@ export const useMissionTimer = () => {
       setTimerState({ secondsLeft: 0, isRunning: false, error: message });
     }
   }, []);
-
+  useEffect(() => {
+    if (!heroId) return;
+    startTimer(heroId);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [heroId, startTimer]);
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
+
 
   return {
     secondsLeft: timerState.secondsLeft,
