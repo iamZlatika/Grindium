@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { writeContract, waitForTransactionReceipt } from '@wagmi/core';
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/contract';
 import { config } from '@/wagmi';
+import { toast } from 'sonner';
 
 export const useSendToMission = (onSuccessCallback: () => void) => {
   const mutation = useMutation({
@@ -18,6 +19,7 @@ export const useSendToMission = (onSuccessCallback: () => void) => {
     },
     onSuccess: () => {
       onSuccessCallback();
+      toast.success('Mission started successfully');
     },
   });
 

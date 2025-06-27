@@ -9,16 +9,19 @@ export type TFullHeroData = {
   tokenUri: string;
 };
 
-export type TCheckIsOnMissionResult =
-  | { success: true; result: boolean }
-  | { success: false; message: string };
-
-export type TMission = {
+export type TBaseQuest = {
   id: bigint;
   name: string;
   description: string;
   minLevel: bigint;
   durationMinutes: bigint;
+};
+
+export type TMission = TBaseQuest & {
   minXPReward: bigint;
   maxXPReward: bigint;
+};
+
+export type TStory = TBaseQuest & {
+  xpReward: bigint;
 };

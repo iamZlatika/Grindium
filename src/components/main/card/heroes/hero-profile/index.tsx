@@ -9,6 +9,7 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/contract';
 import { toast } from 'sonner';
 import { levelLabels } from './helpers';
 import { TFullHeroData } from '@/types';
+import { cn } from '@/lib/utils';
 
 interface HeroProfileProps {
   heroId: number;
@@ -79,7 +80,7 @@ const HeroProfile = ({ heroId, heroData, onHeroDataRefetch }: HeroProfileProps) 
         img.onerror = null;
       };
     }
-  }, [isImageOnScreen, processedMetadata, imageLoaded, imageError]); 
+  }, [isImageOnScreen, processedMetadata, imageLoaded, imageError]);
 
   const currentXp = Number(heroData?.hero.xp ?? 0) - Number(currentThreshold);
   const nextLevelThreshold = Number(nextThreshold) - Number(currentThreshold);
@@ -137,7 +138,15 @@ const HeroProfile = ({ heroId, heroData, onHeroDataRefetch }: HeroProfileProps) 
         </div>
         <div className="flex">
           <p className="mr-2">Rarity:</p>
-          {levelLabels[Number(heroData?.hero.rarity)]}
+          <span
+            className={cn({
+              'text-green-500': heroData?.hero.rarity === 0,
+              'text-yellow-500': heroData?.hero.rarity === 1,
+              'text-purple-500': heroData?.hero.rarity === 2,
+            })}
+          >
+            {levelLabels[Number(heroData?.hero.rarity)]}
+          </span>
         </div>
       </div>
     </>

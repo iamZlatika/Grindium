@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = '0xEE78C50ac32AFe943F49B68b0FdEF77Fa9E69734';
+export const CONTRACT_ADDRESS = '0x0De468268a09D4F9BAa7Df2b8852538215717749';
 
 export const CONTRACT_ABI = [
   {
@@ -31,18 +31,6 @@ export const CONTRACT_ABI = [
   },
   {
     anonymous: false,
-    inputs: [{ indexed: false, internalType: 'string', name: 'newBaseURI', type: 'string' }],
-    name: 'BaseURIChanged',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [{ indexed: true, internalType: 'address', name: 'newGameManager', type: 'address' }],
-    name: 'GameManagerChanged',
-    type: 'event',
-  },
-  {
-    anonymous: false,
     inputs: [
       { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
       { indexed: false, internalType: 'uint8', name: 'newRarity', type: 'uint8' },
@@ -59,12 +47,6 @@ export const CONTRACT_ABI = [
       { indexed: false, internalType: 'uint8', name: 'rarity', type: 'uint8' },
     ],
     name: 'HeroMinted',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [{ indexed: false, internalType: 'uint256', name: 'newCooldown', type: 'uint256' }],
-    name: 'MintCooldownChanged',
     type: 'event',
   },
   {
@@ -92,29 +74,11 @@ export const CONTRACT_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'uint256', name: 'missionId', type: 'uint256' },
-      { indexed: false, internalType: 'string', name: 'name', type: 'string' },
-    ],
-    name: 'MissionCreated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
       { indexed: true, internalType: 'address', name: 'user', type: 'address' },
       { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
       { indexed: false, internalType: 'uint256', name: 'missionId', type: 'uint256' },
     ],
     name: 'MissionStarted',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'uint256', name: 'missionId', type: 'uint256' },
-      { indexed: false, internalType: 'string', name: 'name', type: 'string' },
-    ],
-    name: 'MissionUpdated',
     type: 'event',
   },
   {
@@ -141,29 +105,11 @@ export const CONTRACT_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'uint256', name: 'missionId', type: 'uint256' },
-      { indexed: false, internalType: 'string', name: 'name', type: 'string' },
-    ],
-    name: 'StoryMissionCreated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
       { indexed: true, internalType: 'address', name: 'user', type: 'address' },
       { indexed: true, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
       { indexed: false, internalType: 'uint256', name: 'missionId', type: 'uint256' },
     ],
     name: 'StoryMissionStarted',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'uint256', name: 'missionId', type: 'uint256' },
-      { indexed: false, internalType: 'string', name: 'name', type: 'string' },
-    ],
-    name: 'StoryMissionUpdated',
     type: 'event',
   },
   {
@@ -373,6 +319,13 @@ export const CONTRACT_ABI = [
     type: 'function',
   },
   {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'getStoryMissionRemainingTime',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
     name: 'getUserMintCooldown',
     outputs: [
@@ -415,6 +368,13 @@ export const CONTRACT_ABI = [
     type: 'function',
   },
   {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'isMissionRewardReady',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     name: 'isOnMission',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
@@ -424,6 +384,13 @@ export const CONTRACT_ABI = [
   {
     inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     name: 'isOnStoryMission',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'isStoryMissionRewardReady',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',

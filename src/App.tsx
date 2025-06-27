@@ -4,12 +4,13 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS } from './contract';
 import { useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import MainCard from './components/main/card';
-import { TFullHeroData, TMission } from './types';
+import { TFullHeroData, TMission, TStory } from './types';
 
 export default function App() {
   const { isConnected, address } = useAccount();
   const [heroId, setHeroId] = useState<number | undefined>(undefined);
   const [selectedMission, setSelectedMission] = useState<TMission | undefined>(undefined);
+  const [selectedStory, setSelectedStory] = useState<TStory | undefined>(undefined);
 
   const { data: heroes, refetch: refetchOwnedHeroes } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -30,6 +31,15 @@ export default function App() {
     },
   });
 
+  const { data: stories } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getAllStoryMissions',
+    query: {
+      enabled: isConnected,
+    },
+  });
+
   const heroIdAsBigInt = heroId !== undefined ? BigInt(heroId) : undefined;
   const { data: heroData, refetch: refetchHeroData } = useReadContract({
     abi: CONTRACT_ABI,
@@ -41,11 +51,10 @@ export default function App() {
     },
   });
 
-  console.log('heroData', heroData);
+
   return (
     <div className="w-4/5 mx-auto flex flex-col items-center">
       <ConnectionSection isConnected={isConnected} />
-
       <MainCard
         isConnected={isConnected}
         heroes={heroes as bigint[]}
@@ -58,6 +67,9 @@ export default function App() {
         setSelectedMission={setSelectedMission}
         missions={missions as TMission[]}
         address={address}
+        stories={stories as TStory[]}
+        selectedStory={selectedStory}
+        setSelectedStory={setSelectedStory}
       />
       <Toaster richColors />
     </div>

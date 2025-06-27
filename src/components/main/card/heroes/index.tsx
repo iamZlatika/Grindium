@@ -1,6 +1,6 @@
 import { TFullHeroData } from '@/types';
-import HeroSelect from '../../../ui/hero-select';
-import DonateForm from './donane-section';
+import HeroSelect from '../../../shared/hero-select';
+import DonateForm from './donate-section';
 import HeroProfile from './hero-profile';
 
 interface HeroTabProps {

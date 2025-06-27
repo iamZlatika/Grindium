@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -7,28 +6,28 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { useMintHero } from './useMintHero';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
-import { TFullHeroData, TMission } from '@/types';
+import { TFullHeroData, TMission, TStory } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useMintCooldownTimer } from './useMintCooldown';
-import { formatSeconds } from '@/lib/utils';
 import HeroTab from './heroes';
 import MissionsTab from './missions';
+import MintHeroBtn from './mint-btn';
+import StoryTab from './story';
 
 interface MainCardProps {
   heroes: bigint[];
-  setHeroId: (value: number) => void;
+  setHeroId: (hero: number) => void;
   heroId: number | undefined;
   onHeroCreated: () => void;
   missions: TMission[];
-  setSelectedMission: (value: TMission | undefined) => void;
+  setSelectedMission: (mission: TMission | undefined) => void;
   selectedMission: TMission | undefined;
   isConnected: boolean;
   address: `0x${string}` | undefined;
   heroData: TFullHeroData;
   onHeroDataRefetch: () => void;
+  stories: TStory[];
+  selectedStory: TStory | undefined;
+  setSelectedStory: (story: TStory | undefined) => void;
 }
 
 const MainCard = ({
@@ -43,37 +42,30 @@ const MainCard = ({
   setSelectedMission,
   heroData,
   onHeroDataRefetch,
+  selectedStory,
+  setSelectedStory,
+  stories,
 }: MainCardProps) => {
-  const { secondsLeft, isRunning, refreshCooldown } = useMintCooldownTimer(address);
-
-  const { mintHero, isMinting, isConfirmed } = useMintHero(() => {
-    refreshCooldown();
-  });
-
-  useEffect(() => {
-    if (isConfirmed) toast.success('Hero is successfully created');
-    onHeroCreated();
-  }, [isConfirmed, onHeroCreated]);
-
   return (
     <Card className="w-full max-w-2xl">
-      <Tabs defaultValue="missions">
+      <Tabs defaultValue="heroes">
         <CardHeader>
           <CardTitle>
             <TabsList>
               <TabsTrigger value="heroes">Heroes</TabsTrigger>
               <TabsTrigger value="missions">Missions</TabsTrigger>
+              <TabsTrigger value="story">Story</TabsTrigger>
             </TabsList>
           </CardTitle>
           <CardAction>
-            <Button onClick={() => mintHero()} disabled={isMinting || !isConnected || isRunning}>
-              {!isRunning && isMinting && 'Minting in progress...'}
-              {!isRunning && !isMinting && 'Create a new hero'}
-              {isRunning && `Minting cooldown is ${formatSeconds(secondsLeft)}`}
-            </Button>
+            <MintHeroBtn
+              address={address}
+              onHeroCreated={onHeroCreated}
+              isConnected={isConnected}
+            />
           </CardAction>
         </CardHeader>
-        <CardContent className="">
+        <CardContent>
           <TabsContent value="heroes">
             <HeroTab
               heroId={heroId}
@@ -91,6 +83,18 @@ const MainCard = ({
               setSelectedMission={setSelectedMission}
               setHeroId={setHeroId}
               heroes={heroes}
+              heroData={heroData}
+              onHeroDataRefetch={onHeroDataRefetch}
+            />
+          </TabsContent>
+          <TabsContent value="story">
+            <StoryTab
+              heroes={heroes}
+              setHeroId={setHeroId}
+              heroId={heroId}
+              stories={stories}
+              selectedStory={selectedStory}
+              setSelectedStory={setSelectedStory}
               heroData={heroData}
               onHeroDataRefetch={onHeroDataRefetch}
             />

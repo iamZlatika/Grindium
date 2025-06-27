@@ -1,9 +1,9 @@
 import { TFullHeroData, TMission } from '@/types';
 import { Button } from '@/components/ui/button';
-import MissionSelect from './components/missions-select';
+import QuestSelect from '../../../shared/quest-select/quest-select';
 import { useMissionTimer } from './hooks/useMissionTimer';
-import { useSendToMission } from './hooks/useSendToMisstion';
-import HeroSelect from '@/components/ui/hero-select';
+import { useSendToMission } from './hooks/useSendToMission';
+import HeroSelect from '@/components/shared/hero-select';
 import { useCompleteMission } from './hooks/useCompleteMission';
 import { Label } from '@/components/ui/label';
 import { missionImages } from '@/assets/missions';
@@ -36,6 +36,7 @@ const MissionsTab = ({
 }: MissionsSectionProps) => {
   const { startTimer, isRunning, secondsLeft } = useMissionTimer(heroId);
   const { completeMission, isPendingCompleteMission } = useCompleteMission(heroId);
+  // const { isReady } = useCheckMissionRewardReady(heroId, secondsLeft);
   const { cancelMission } = useCancelMission(() => {
     if (heroId) {
       startTimer(heroId);
@@ -68,7 +69,6 @@ const MissionsTab = ({
     },
   });
 
-
   const handleSendToMission = () => {
     const missionId = Number(selectedMission?.id);
     if (!heroId || !missionId) return;
@@ -78,16 +78,18 @@ const MissionsTab = ({
     if (!heroId) return;
     cancelMission({ heroId });
   };
+
   return (
     <>
       <div className="flex items-end justify-between">
         <HeroSelect data={heroes} setHeroId={setHeroId} heroId={heroId} />
         <div>
           <Label className="mb-2">Select appropriate mission</Label>
-          <MissionSelect
-            missions={missions}
-            selectedMission={selectedMission}
-            setSelectedMission={setSelectedMission}
+          <QuestSelect
+            items={missions}
+            selected={selectedMission}
+            setSelected={setSelectedMission}
+            title="Mission"
           />
         </div>
         <div>
